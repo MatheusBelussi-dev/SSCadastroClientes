@@ -1,0 +1,78 @@
+﻿@model CadastroClientes.ViewModel.ClienteAdicionar
+@{
+    ViewBag.Title = "Adicionar Cliente";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<br />
+<fieldset>
+    <h4 class="mx-4"><strong>Adicionar Cliente</strong></h4>
+    <br />
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <div class="card mx-4">
+            <br />
+            <div class="row px-3">
+                <div class="col-lg-6">
+                    @Html.LabelFor(c => c.Nome, new { @class = "fw-bold" })
+                    <br />
+                    @Html.TextBoxFor(c => c.Nome, new { @class = "form-control" })
+                </div>
+                <div class="col-lg-6">
+                    @Html.LabelFor(c => c.Tipo, new { @class = "fw-bold" })
+                    <br />
+                    @Html.DropDownListFor(c => c.Tipo, (SelectList)ViewBag.Tipos, "Selecione...", new { @class = "form-control" })
+                </div>
+            </div>
+            <br />
+            <div class="row px-3">
+                <div class="col-lg-6">
+                    @Html.LabelFor(c => c.Documento, new { @class = "fw-bold" })
+                    <br />
+                    @Html.TextBoxFor(c => c.Documento, new { @class = "form-control", @id = "documento" })
+                </div>
+                <div class="col-lg-6">
+                    @Html.LabelFor(c => c.Telefone, new { @class = "fw-bold" })
+                    <br />
+                    @Html.TextBoxFor(c => c.Telefone, new { @class = "form-control", @id = "telefone" })
+                </div>
+            </div>
+            <br />
+            <div class="row px-3">
+                <div class="col-lg-2">
+                    <a href="@Url.Action("Index")" class="btn btn-outline-dark">
+                        Cancelar
+                    </a>
+                    <input type="submit" value="Confirmar" class="btn btn-dark">
+                </div>
+            </div>
+            <br />
+        </div>
+        @Html.ValidationSummary(false)
+    }
+</fieldset>
+
+@section scripts {
+    <script>
+        $(document).ready(function  () {
+
+            $('#Tipo').change(function  () {
+                var tipo = $(this).val();
+                $('#documento').unmask();
+
+                if (tipo === 'PF') {
+                    $('#documento').mask('000.000.000-00', { reverse: true });
+                } else if (tipo === 'PJ') {
+                    $('#documento').mask('00.000.000/0000-00', { reverse: true });
+                }
+            });
+
+            $('#telefone').mask('(00) 00000-0000');
+
+            if ($('#Tipo').val()) {
+                $('#Tipo').trigger('change');
+            }
+        });
+    </script>
+}

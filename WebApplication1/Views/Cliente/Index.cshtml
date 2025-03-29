@@ -1,0 +1,166 @@
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IPagedList<CadastroClientes.ViewModel.ClienteIndex>
+@{
+    ViewBag.Title = "Clientes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var hasFilters = !string.IsNullOrEmpty(ViewBag.nome as string) || !string.IsNullOrEmpty(ViewBag.documento as string);
+}
+
+<br />
+<fieldset>
+
+    <h4 class="mx-4"><strong>Cadastro de Clientes</strong></h4>
+    <br />
+    @using (Html.BeginForm(new { page = 1 }))
+    {
+        <div class="card mx-4 ">
+            <div class="card-header bg-light d-flex align-items-center">
+                <i class="bi bi-funnel me-2"></i>
+                @Html.Label(null, "Filtros", new { @class = "fw-bold" })
+            </div>
+
+            <div class="card-body mx-4">
+                <div class="row align-items-center g-3">
+
+                    <div class="col-md-4 col-sm-4">
+                        <div class="form-floating">
+                            @Html.TextBox("nome", ViewBag.nome as string, new { @class = "form-control" })
+                            @Html.Label("nome", "Nome")
+                        </div>
+                    </div>
+
+                    <div class="col-md-5 col-sm-6">
+                        <div class="form-floating">
+                            @Html.TextBox("documento", ViewBag.documento as string, new { @class = "form-control" })
+                            @Html.Label("documento", "Documento")
+                        </div>
+                    </div>
+
+                    <div class="@(hasFilters ? "col-md-1 col-lg-1" : "col-md-2 col-lg-2")">
+                        <button type="submit" class="btn btn-dark w-100 h-100 py-2">
+                            Consultar <i class="bi bi-search me-2"></i>
+                        </button>
+                    </div>
+
+                    @if (hasFilters)
+                    {
+                        <div class="col-md-1 col-lg-1">
+                            <a href="@Url.Action("Index")" class="btn btn-outline-secondary w-100 h-100 py-2">
+                                Limpar <i class="bi bi-eraser me-2"></i>
+                            </a>
+                        </div>
+                    }
+                
+                </div>
+            </div>
+        </div>
+    }
+    <br />
+    <div class="card-header d-flex mx-4 bg-light">
+        <h5 class="row">
+            @Html.Label(null, "Relação de Clientes", new { @class = "fw-bold" })
+        </h5>
+    </div>
+    <div class="card mx-4">
+        <br />
+        <div class="card-body mx-4 p-0">
+            <div class="row">
+                <div class="col-4">
+                    <a href="@Url.Action("Adicionar")" class="btn btn-dark">
+                        Adicionar Cliente <i class="bi bi-plus-circle me-2"></i>
+                    </a>
+                </div>         
+            </div>
+            <br />
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered m-0">
+                    <tr class="text-center">
+                        <th width="5%">@Html.DisplayNameFor(c => c.FirstOrDefault().Id)</th>
+                        <th>@Html.DisplayNameFor(c => c.FirstOrDefault().Nome)</th>
+                        <th width="10%">@Html.DisplayNameFor(c => c.FirstOrDefault().Tipo)</th>
+                        <th width="15%">@Html.DisplayNameFor(c => c.FirstOrDefault().Documento)</th>
+                        <th width="15%">@Html.DisplayNameFor(c => c.FirstOrDefault().Telefone)</th>
+                        <th width="15%">@Html.DisplayNameFor(c => c.FirstOrDefault().DataCadastro)</th>
+                        <th colspan="2" width="10%"></th>
+                    </tr>
+                    @foreach (var item in Model)
+                    {
+                        <tr class="text-center">
+                            <td>@item.Id</td>
+                            <td>@item.Nome</td>
+                            <td>@item.Tipo</td>
+                            <td>@(item.Tipo == "PF" ? FormatCPF(item.Documento) : FormatCNPJ(item.Documento))</td>
+                            <td>@FormatTelefone(item.Telefone)</td>
+                            <td>@item.DataCadastro.ToString("dd/MM/yyyy")</td>
+                            <td width="5%">
+                                @Html.ActionLink("Alterar", "Alterar", new { id = item.Id }, new { @class = "btn btn-primary btn-sm text-white text-decoration-none" })
+                            </td>
+                            <td width="5%">
+                                @Html.ActionLink("Excluir", "Excluir", new { id = item.Id }, new { @class = "btn btn-danger btn-sm text-white text-decoration-none" })
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+            <div class="card-footer mx-4 bg-white">
+                <div class="row">
+                    <div class="col-lg-12">
+                        Página @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) de @Model.PageCount
+                        <nav aria-label="Page navigation" class="pagination-sm" style="font-size: 12px;">
+                            @Html.PagedListPager(Model, page => Url.Action("Index", new { page, nome = ViewBag.nome, documento = ViewBag.documento }),
+                                     new X.PagedList.Web.Common.PagedListRenderOptions()
+                            {
+                                Display = X.PagedList.Web.Common.PagedListDisplayMode.IfNeeded,
+                                MaximumPageNumbersToDisplay = 5,
+                                LiElementClasses = new[] { "page-item" },
+                                PageClasses = new[] { "page-link" }
+                            })
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</fieldset>
+
+<style>
+    .btn-clear-filters {
+        transition: all 0.3s ease;
+    }
+</style>
+
+@functions {
+    public string FormatCPF(string cpf)
+    {
+        string cpfNumerico = new string(cpf.Where(char.IsDigit).ToArray());
+        return Convert.ToUInt64(cpfNumerico).ToString(@"000\.000\.000\-00");
+    }
+
+    public string FormatCNPJ(string cnpj)
+    {
+
+        string cnpjNumerico = new string(cnpj.Where(char.IsDigit).ToArray());
+
+        return Convert.ToUInt64(cnpjNumerico).ToString(@"00\.000\.000\/0000\-00");
+    }
+
+    public string FormatTelefone(string telefone)
+    {
+        if (telefone.Length == 10)
+        {
+            return string.Format("({0}) {1}-{2}",
+                telefone.Substring(0, 2),
+                telefone.Substring(2, 4),
+                telefone.Substring(6, 4));
+        }
+        else if (telefone.Length == 11)
+        {
+            return string.Format("({0}) {1}-{2}",
+                telefone.Substring(0, 2),
+                telefone.Substring(2, 5),
+                telefone.Substring(7, 4));
+        }
+        return telefone;
+    }
+}
