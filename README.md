@@ -24,12 +24,14 @@ Para executar o projeto localmente, siga os passos abaixo:
 
 3. Certifique-se de que o banco de dados `mssqllocaldb` está configurado corretamente.
 
-4. Execute as migrações do Entity Framework para criar o banco de dados:
+4. Compile e execute o projeto no Visual Studio (Executar o "RodeEsseProfile").
+
+5. Caso ocorrer algum erro, execute as migrações do Entity Framework para criar o banco de dados:
     ```bash
     Update-Database
     ```
 
-5. Compile e execute o projeto no Visual Studio (Executar o "RodeEsseProfile").
+
 
 ## Funcionalidades
 - Cadastro de clientes PJ e PF.
